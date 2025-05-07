@@ -1,0 +1,58 @@
+package com.example.controller;
+import com.example.model.Product;
+import com.example.service.ProductService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
+import org.springframework.data.elasticsearch.core.SearchHits;
+import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+
+import static org.elasticsearch.index.query.QueryBuilders.multiMatchQuery;
+
+@RestController
+public class SearchController {
+    @Autowired
+    private ElasticsearchOperations elasticsearchOperations;
+    @Autowired
+    private ProductService productService;
+    @Autowired
+    private StringRedisTemplate redisTemplate;
+
+    @GetMapping("/search")
+    public List<Product> search(@RequestParam String query) throws Exception {
+        String cacheKey = "search:" + query;
+        String cachedResult = redisTemplate.opsForValue().get(cacheKey);
+        if (cachedResult != null) {
+            return new ObjectMapper().readValue(cachedResult, new TypeReference<List<Product>>(){});
+        }
+
+        NativeSearchQueryBuilder queryBuilder = new NativeSearchQueryBuilder()
+            .withQuery(multiMatchQuery(query, "title^2", "description"));
+        SearchHits<Product> searchHits = elasticsearchOperations.search(queryBuilder.build(), Product.class);
+        List<Product> results = searchHits.getSearchHits().stream()
+            .map(hit -> hit.getContent())
+            .collect(Collectors.toList());
+
+        redisTemplate.opsForValue().set(cacheKey, new ObjectMapper().writeValueAsString(results), 1, TimeUnit.HOURS);
+        return results;
+    }
+
+    @GetMapping("/autocomplete")
+    public List<String> autocomplete(@RequestParam String prefix) {
+        return productService.getSuggestions(prefix);
+    }
+
+    @GetMapping("/spellcheck")
+    public String spellCheck(@RequestParam String query) {
+        return productService.suggestCorrection(query);
+    }
+}
