@@ -1,0 +1,38 @@
+.App {
+  text-align: center;
+  padding: 20px;
+}
+.search-container {
+  position: relative;
+}
+input {
+  padding: 10px;
+  width: 300px;
+}
+button {
+  padding: 10px;
+  margin-left: 10px;
+}
+.suggestions {
+  position: absolute;
+  background: white;
+  border: 1px solid #ccc;
+  width: 300px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.suggestions li {
+  padding: 10px;
+  cursor: pointer;
+}
+.suggestions li:hover {
+  background: #f0f0f0;
+}
+.results {
+  margin-top: 20px;
+}
+.result {
+  border-bottom: 1px solid #ccc;
+  padding: 10px;
+}
