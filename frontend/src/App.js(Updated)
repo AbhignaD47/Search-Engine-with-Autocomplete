@@ -1,0 +1,78 @@
+import React, { useState } from 'react';
+import axios from 'axios';
+import './App.css';
+
+function App() {
+  const [query, setQuery] = useState('');
+  const [suggestions, setSuggestions] = useState([]);
+  const [results, setResults] = useState([]);
+  const [correction, setCorrection] = useState('');
+
+  const handleInputChange = async (e) => {
+    const value = e.target.value;
+    setQuery(value);
+    if (value.length > 0) {
+      const [suggestionsResponse, spellCheckResponse] = await Promise.all([
+        axios.get(`http://localhost:8080/autocomplete?prefix=${value}`),
+        axios.get(`http://localhost:8080/spellcheck?query=${value}`)
+      ]);
+      setSuggestions(suggestionsResponse.data);
+      setCorrection(spellCheckResponse.data !== value ? spellCheckResponse.data : '');
+    } else {
+      setSuggestions([]);
+      setCorrection('');
+    }
+  };
+
+  const handleSearch = async () => {
+    const response = await axios.get(`http://localhost:8080/search?query=${query}`);
+    setResults(response.data);
+    setSuggestions([]);
+  };
+
+  const handleSuggestionClick = (suggestion) => {
+    setQuery(suggestion);
+    setSuggestions([]);
+    handleSearch();
+  };
+
+  return (
+    <div className="App">
+      <h1>Search Engine</h1>
+      <div className="search-container">
+        <input
+          type="text"
+          value={query}
+          onChange={handleInputChange}
+          placeholder="Enter search query"
+        />
+        <button onClick={handleSearch}>Search</button>
+        {suggestions.length > 0 && (
+          <ul className="suggestions">
+            {suggestions.map((suggestion, index) => (
+              <li key={index} onClick={() => handleSuggestionClick(suggestion)}>
+                {suggestion}
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+      {correction && (
+        <p>Did you mean: <span style={{ color: 'blue', cursor: 'pointer' }} onClick={() => {
+          setQuery(correction);
+          handleSearch();
+        }}>{correction}</span>?</p>
+      )}
+      <div className="results">
+        {results.map((result) => (
+          <div key={result.id} className="result">
+            <h3>{result.title}</h3>
+            <p>{result.description}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+export default App;
