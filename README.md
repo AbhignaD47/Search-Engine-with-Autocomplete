@@ -1,18 +1,44 @@
-# Search-Engine-with-Autocomplete
+**Search Engine with Autocomplete 🔍**
 
-A web-based search engine with autocomplete, caching, and spell-check.
+A sleek, web-based search engine with real-time autocomplete and spell-check, built to deliver fast, relevant results. Perfect for exploring products or documents with a modern, cloud-ready stack! 🚀
+    
+**✨ Features**
 
-## Features
-- Full-text search with Elasticsearch
-- Autocomplete using a trie
-- Caching with Redis
-- Spell-check with Levenshtein distance
+Instant Search: Powered by Elasticsearch for ranked results.
 
-## Setup
-1. Install Java, Node.js, Elasticsearch, Redis.
-2. Run `mvn spring-boot:run` in `backend`.
-3. Run `npm start` in `frontend`.
+Autocomplete: Trie-based suggestions as you type.
 
-## Directory Structure
-- `backend/`: Java/Spring Boot backend with Elasticsearch and Redis integration.
-- `frontend/`: React frontend for search UI and autocomplete.
+Spell-Check: Fixes typos with Levenshtein distance.
+
+Caching: Redis for blazing-fast queries.
+
+Cloud-Ready: Deployed on AWS OpenSearch.
+
+**🛠️ Tech Stack**
+
+Backend: Java, Spring Boot, Elasticsearch, Redis
+
+Frontend: React, Axios
+
+Cloud: AWS
+
+**🚀 Quick Start**
+
+Clone: git clone https://github.com/your-username/search-engine-project.git
+
+Backend: cd backend && mvn spring-boot:run
+
+Frontend: cd frontend && npm install && npm start
+
+Visit http://localhost:3000 and search away!
+
+**📂 Structure**
+search-engine-project/
+
+├── backend/    # Java backend
+
+├── frontend/   # React frontend
+
+├── .gitignore
+
+└── README.md
